@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.linear_model import LogisticRegression
 #Create your df here:
 df = pd.read_csv("profiles.csv")
 
@@ -58,6 +60,11 @@ for k in range(1,50):
     classifier = KNeighborsClassifier(n_neighbors=k)
     classifier.fit(X_train, y_train)
     scores.append(classifier.score(X_test, y_test))
+    
+classifier = LogisticRegression()
+classifier.fit(X_train, y_train)
+print(classifier.score(X_test, y_test))
+print(f1_score(y_test, classifier.predict(X_test)))
 
 plt.plot(range(1,50), scores, "-o")
 plt.xlabel("k")
