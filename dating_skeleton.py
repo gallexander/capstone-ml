@@ -58,7 +58,7 @@ print(df["education"].value_counts())
 
 first_question_data = df[["education", "income"]]
 scaler = preprocessing.StandardScaler()
-df[["education", "income"]] = scaler.fit_transform(df[["education", "income"]])
+first_question_data = scaler.fit_transform(df[["education", "income"]])
 #x = first_question_data.values
 #x_scaled = min_max_scaler.fit_transform(x)
 #first_question_data = pd.DataFrame(x_scaled, columns=first_question_data.columns)
@@ -79,9 +79,11 @@ print(classifier.predict_proba(X_test)[:1])
 array = confusion_matrix(y_true=y_test, y_pred=y_pred)
 print(array)
 print(classifier.coef_)
-print(classifier.intercept_)
-print(sum(y_test))
-
+# you have to scale this
+point = [0,0]
+print(classifier.predict([point]))
+log_odds = classifier.intercept_ + classifier.coef_[0][0]*point[0] + classifier.coef_[0][1]*point[1]
+print(np.exp(log_odds)/(1+ np.exp(log_odds)))
 #plt.plot(range(1,30), scores, "-o")
 #plt.xlabel("k")
 #plt.ylabel("Score")
