@@ -17,9 +17,9 @@ def classify_k_neighbors(X_train, X_test, y_train, y_test, k):
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
     print("Accuracy KNeighbors:", accuracy_score(y_true=y_test, y_pred=y_pred))
-    print("Recall KNeighbors:", recall_score(y_true=y_test, y_pred=y_pred))
-    print("Precision KNeighbors:", precision_score(y_true=y_test, y_pred=y_pred))
-    print("F1 score KNeighbors:", f1_score(y_true=y_test, y_pred=y_pred))
+    #print("Recall KNeighbors:", recall_score(y_true=y_test, y_pred=y_pred))
+    #print("Precision KNeighbors:", precision_score(y_true=y_test, y_pred=y_pred))
+    #print("F1 score KNeighbors:", f1_score(y_true=y_test, y_pred=y_pred))
     #print(confusion_matrix(y_true=y_test, y_pred=y_pred)
     #plt.plot(range(1,30), scores, "-o")
     #plt.xlabel("k")
@@ -74,11 +74,7 @@ def question_2(df):
     df["essay_word_count"] = df["all"].apply(lambda x: len(x.split()))
     #print(df["essay_word_count"].value_counts())
     X_train, X_test, y_train, y_test = train_test_split(df[["essay_word_count"]], df["education"], test_size=0.25, random_state=134)
-    classifier = KNeighborsClassifier(n_neighbors=5)
-    classifier.fit(X_train, y_train)
-    print(classifier.score(X_test, y_test))
-
-
+    classify_k_neighbors(X_train, X_test, y_train, y_test, 25)
 def main():
     #Create your df here:
     df = pd.read_csv("profiles.csv")
