@@ -11,6 +11,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 
 def classify_k_neighbors(X_train, X_test, y_train, y_test, k):
     classifier = KNeighborsClassifier(n_neighbors=k)
@@ -39,6 +40,14 @@ def classify_logistic(X_train, X_test, y_train, y_test):
     #print(classifier.predict(point))
     #log_odds = classifier.intercept_ + classifier.coef_[0][0]*point[0][0] + classifier.coef_[0][1]*point[0][1]
     #print(np.exp(log_odds)/(1+ np.exp(log_odds)))
+
+def classify_linear(X_train, X_test, y_train, y_test):
+    classifier = LinearRegression()
+    classifier.fit(X_train, y_train)
+    print(classifier.coef_)
+    print("Score Linear:", classifier.score(X_test, y_test))
+    #y_pred = classifier.predict(X_test)
+    #print("Accuracy Logistic:", accuracy_score(y_true=y_test, y_pred=y_pred))
 
 def question_1(df):
     #income_mean = df["income"].mean()
@@ -75,6 +84,12 @@ def question_2(df):
     #print(df["essay_word_count"].value_counts())
     X_train, X_test, y_train, y_test = train_test_split(df[["essay_word_count"]], df["education"], test_size=0.25, random_state=134)
     classify_k_neighbors(X_train, X_test, y_train, y_test, 25)
+
+def question_3(df):
+    df.drop(df[df["income"] == -1].index, axis=0, inplace=True)
+    X_train, X_test, y_train, y_test = train_test_split(df[["essay_len", "avg_word_length"]], df["income"], test_size=0.25, random_state=38)
+    classify_linear(X_train, X_test, y_train, y_test)
+
 def main():
     #Create your df here:
     df = pd.read_csv("profiles.csv")
@@ -90,7 +105,9 @@ def main():
     all_data["all"] = all_data[essay_cols].apply(lambda x: ' '.join(x), axis=1)
     df["all"] = all_data[essay_cols].apply(lambda x: ' '.join(x), axis=1)
     all_data["essay_len"] = all_data["all"].apply(lambda x: len(x))
+    df["essay_len"] = all_data["all"].apply(lambda x: len(x))
     all_data["avg_word_length"] = all_data["all"].apply(lambda x: sum([len(word) for word in x.split()]) / len(x.split()) if len(x.split()) else 0)
+    df["avg_word_length"] = all_data["all"].apply(lambda x: sum([len(word) for word in x.split()]) / len(x.split()) if len(x.split()) else 0)
     all_data["i_me_count"] = all_data["all"].apply(lambda x: list(map(lambda y: y.lower(), x.split())).count("me") + [y.lower() for y in x.split()].count("i"))
     all_data["drinks_code"] = df.drinks.map(drink_mapping)
     all_data["drugs_code"] = df.drugs.map(drugs_mapping)
@@ -104,6 +121,7 @@ def main():
     print(feature_data.columns)
     question_1(df)
     question_2(df)
+    question_3(df)
 
 if __name__ == "__main__":
     main()
