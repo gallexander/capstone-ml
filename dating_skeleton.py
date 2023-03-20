@@ -44,7 +44,7 @@ def classify_logistic(X_train, X_test, y_train, y_test):
 def classify_linear(X_train, X_test, y_train, y_test):
     classifier = LinearRegression()
     classifier.fit(X_train, y_train)
-    print(classifier.coef_)
+    #print(classifier.coef_)
     print("Score Linear:", classifier.score(X_test, y_test))
     #y_pred = classifier.predict(X_test)
     #print("Accuracy Logistic:", accuracy_score(y_true=y_test, y_pred=y_pred))
@@ -87,8 +87,29 @@ def question_2(df):
 
 def question_3(df):
     df.drop(df[df["income"] == -1].index, axis=0, inplace=True)
+    df["income"] = df["income"].apply(map_income)
+    #print(df["income"].value_counts())
     X_train, X_test, y_train, y_test = train_test_split(df[["essay_len", "avg_word_length"]], df["income"], test_size=0.25, random_state=38)
     classify_linear(X_train, X_test, y_train, y_test)
+    
+def question_4(df):
+    print(df["age"].value_counts())
+
+def map_income(income):
+    if income <= 25000:
+        return 1
+    elif income <= 50000:
+        return 2
+    elif income <= 75000:
+        return 3
+    elif income <= 100000:
+        return 4
+    elif income <= 150000:
+        return 5
+    elif income <= 250000:
+        return 6
+    else:
+        return 7
 
 def main():
     #Create your df here:
@@ -122,6 +143,7 @@ def main():
     question_1(df)
     question_2(df)
     question_3(df)
+    question_4(df)
 
 if __name__ == "__main__":
     main()
