@@ -4,6 +4,7 @@ import numpy as np
 from sklearn import preprocessing
 from matplotlib import pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
@@ -47,7 +48,12 @@ def classify_linear(X_train, X_test, y_train, y_test):
     #print(classifier.coef_)
     print("Score Linear:", classifier.score(X_test, y_test))
     #y_pred = classifier.predict(X_test)
-    #print("Accuracy Logistic:", accuracy_score(y_true=y_test, y_pred=y_pred))
+    #print("Acuracy Logistic:", accuracy_score(y_true=y_test, y_pred=y_pred))
+    
+def classify_kneighbors_regressor(X_train, X_test, y_train, y_test):
+    classifier = KNeighborsRegressor(weights="distance")
+    classifier.fit(X_train, y_train)
+    print("Score KNeighborsRegressor:", classifier.score(X_test, y_test))
 
 def question_1(df):
     #income_mean = df["income"].mean()
@@ -88,12 +94,34 @@ def question_2(df):
 def question_3(df):
     df.drop(df[df["income"] == -1].index, axis=0, inplace=True)
     df["income"] = df["income"].apply(map_income)
+    
+    data = df[["essay_len", "avg_word_length"]]
+    scaler = preprocessing.StandardScaler()
+    data = scaler.fit_transform(df[["essay_len", "avg_word_length"]])
+    
     #print(df["income"].value_counts())
-    X_train, X_test, y_train, y_test = train_test_split(df[["essay_len", "avg_word_length"]], df["income"], test_size=0.25, random_state=38)
+    X_train, X_test, y_train, y_test = train_test_split(data, df["income"], test_size=0.25, random_state=38)
     classify_linear(X_train, X_test, y_train, y_test)
+    classify_kneighbors_regressor(X_train, X_test, y_train, y_test)
     
 def question_4(df):
-    print(df["age"].value_counts())
+    #print(df["age"].value_counts())
+    #print(df["i_me_count"].value_counts())
+    X_train, X_test, y_train, y_test = train_test_split(df[["i_me_count"]], df["age"], test_size=0.25, random_state=38)
+    classify_linear(X_train, X_test, y_train, y_test)
+    classify_kneighbors_regressor(X_train, X_test, y_train, y_test)
+    
+def question_5(df):
+    df.drop(df[df["income"] == -1].index, axis=0, inplace=True)
+    df["income"] = df["income"].apply(map_income)
+    
+    data = df[["drinks_code", "drugs_code", "smokes_code"]]
+    scaler = preprocessing.StandardScaler()
+    data = scaler.fit_transform(df[["drinks_code", "drugs_code", "smokes_code"]])
+
+    X_train, X_test, y_train, y_test = train_test_split(data, df["income"], test_size=0.25, random_state=38)
+    classify_linear(X_train, X_test, y_train, y_test)
+    classify_kneighbors_regressor(X_train, X_test, y_train, y_test)
 
 def map_income(income):
     if income <= 25000:
@@ -130,9 +158,13 @@ def main():
     all_data["avg_word_length"] = all_data["all"].apply(lambda x: sum([len(word) for word in x.split()]) / len(x.split()) if len(x.split()) else 0)
     df["avg_word_length"] = all_data["all"].apply(lambda x: sum([len(word) for word in x.split()]) / len(x.split()) if len(x.split()) else 0)
     all_data["i_me_count"] = all_data["all"].apply(lambda x: list(map(lambda y: y.lower(), x.split())).count("me") + [y.lower() for y in x.split()].count("i"))
+    df["i_me_count"] = all_data["all"].apply(lambda x: list(map(lambda y: y.lower(), x.split())).count("me") + [y.lower() for y in x.split()].count("i"))
     all_data["drinks_code"] = df.drinks.map(drink_mapping)
+    df["drinks_code"] = df.drinks.map(drink_mapping)
     all_data["drugs_code"] = df.drugs.map(drugs_mapping)
+    df["drugs_code"] = df.drugs.map(drugs_mapping)
     all_data["smokes_code"] = df.smokes.map(smokes_mapping)
+    df["smokes_code"] = df.smokes.map(smokes_mapping)
 
     feature_data = all_data[["drinks_code", "drugs_code", "smokes_code", "essay_len", "avg_word_length", "i_me_count"]]
     x = feature_data.values
@@ -140,10 +172,12 @@ def main():
     x_scaled = min_max_scaler.fit_transform(x)
     feature_data = pd.DataFrame(x_scaled, columns=feature_data.columns)
     print(feature_data.columns)
-    question_1(df)
-    question_2(df)
-    question_3(df)
-    question_4(df)
+    
+    #question_1(df)
+    #question_2(df)
+    #question_3(df)
+    #question_4(df)
+    question_5(df)
 
 if __name__ == "__main__":
     main()
