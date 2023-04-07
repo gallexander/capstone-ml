@@ -110,18 +110,50 @@ def question_4(df):
     X_train, X_test, y_train, y_test = train_test_split(df[["i_me_count"]], df["age"], test_size=0.25, random_state=38)
     classify_linear(X_train, X_test, y_train, y_test)
     classify_kneighbors_regressor(X_train, X_test, y_train, y_test)
-    
+    plt.scatter(df["i_me_count"], df['age'], alpha=0.4)
+    plt.xlabel('Count of I and Me')
+    plt.ylabel('Age')
+    plt.show()
+
 def question_5(df):
     df.drop(df[df["income"] == -1].index, axis=0, inplace=True)
     df["income"] = df["income"].apply(map_income)
     
+   #df['age'] = df['age'].apply(map_age)
+    #df.dropna(subset=['smokes_code', 'drugs_code', 'drinks_code'], axis=0, inplace=True)
+    df[["drinks_code", "drugs_code", "smokes_code"]] = df[["drinks_code", "drugs_code", "smokes_code"]].replace(np.nan, 2, regex=True)
     data = df[["drinks_code", "drugs_code", "smokes_code"]]
-    scaler = preprocessing.StandardScaler()
-    data = scaler.fit_transform(df[["drinks_code", "drugs_code", "smokes_code"]])
+    scaler = preprocessing.MinMaxScaler()
+    x_scaled = scaler.fit_transform(data)
+    data = pd.DataFrame(x_scaled, columns=data.columns)
 
-    X_train, X_test, y_train, y_test = train_test_split(data, df["income"], test_size=0.25, random_state=38)
+    data["all_drugs_in_one"] = data.apply(lambda x: x.sum(), axis=1)
+    print(data["smokes_code"].value_counts())
+    print(data["all_drugs_in_one"].value_counts())
+
+    X_train, X_test, y_train, y_test = train_test_split(data, df["age"], test_size=0.25)
     classify_linear(X_train, X_test, y_train, y_test)
     classify_kneighbors_regressor(X_train, X_test, y_train, y_test)
+    plt.scatter(data["all_drugs_in_one"], df['age'], alpha=0.4)
+    plt.xlabel('All drugs in one')
+    plt.ylabel('Age')
+    plt.show()
+
+def map_age(age):
+    if age <= 15:
+        return 0
+    elif age <= 30:
+        return 1
+    elif age <= 40:
+        return 2
+    elif age <= 50:
+        return 3
+    elif age <= 60:
+        return 4
+    elif age <= 70:
+        return 5
+    else:
+        return 6
 
 def map_income(income):
     if income <= 25000:
